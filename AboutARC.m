@@ -23,14 +23,44 @@
 // More on ARC from the compiler team : http://clang.llvm.org/docs/AutomaticReferenceCounting.html
 //
 //  @property (nonatomic,strong) NSString *thingy;
+- (void) setPhoneNumber:(PhoneNumber *)phoneNumber;
+//@property PhoneNumber *phoneNumber;
 @end
 
 @interface PhoneNumber : NSObject
   // We would explicitly tell the ARC system that we want a weak reference to Person
   // ie: don't keep the Person around if it's only retained reference is weak
   @property (nonatomic, weak) Person *owner;
+@property NSString *areaCode;
+@property NSString *digits;
+@property NSString *countryCode;
+
+  - (id)initWithCountryCode:(NSString *)countryCode areaCode:(NSString *)areaCode digits:(NSString *)digits;
+
 @end
 
+@implementation Person
+- (void) setPhoneNumber:(PhoneNumber *)phoneNumber {
+  self.phoneNumber = phoneNumber;
+  phoneNumber.owner = self;
+}
+@end
+
+@implementation PhoneNumber
+- (id)initWithCountryCode:(NSString *)countryCode areaCode:(NSString *)areaCode digits:(NSString *)digits
+{
+  self = [super init];
+  
+  if (self) {
+    self.countryCode = countryCode;
+    self.areaCode = areaCode;
+    self.digits = digits;
+  }
+  
+  return self;
+}
+
+@end
 #import "Kiwi.h"
 SPEC_BEGIN(AboutARC)
 
@@ -67,17 +97,7 @@ describe(@"About Automatic Reference Counting", ^{
     });
   });
   
-  context(@"Person",^{
-    it(@"sets a phone number to be owned by this person", ^{
-      Person *me = [[Person alloc] init];
-      PhoneNumber *phoneNumber = [[PhoneNumber alloc] initWithCountryCode:@"1" 
-                                                                 areaCode:@"555" 
-                                                                   digits:@"444-1234"];
-      [me setPhoneNumber:phoneNumber];
-      [[phoneNumber.owner should] beIdenticalTo:me];        
-      
-    });
-  });
+
 });
 SPEC_END
 #endif
